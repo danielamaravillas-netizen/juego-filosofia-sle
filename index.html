@@ -12,7 +12,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
-        /* Estilos personalizados inspirados en Mario Bros y adaptados a SLE */
         body {
             font-family: 'Press Start 2P', cursive;
             background-color: #5c94fc; /* Color del cielo de Mario */
@@ -155,7 +154,7 @@
     <!-- MODAL DE DIÁLOGO PERSONALIZADO (Reemplazo de alert) -->
     <div id="mario-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
         <div class="mario-box bg-white max-w-md w-full p-6 text-center border-4 border-black">
-            <h3 class="text-red-600 text-lg mb-4 mario-text-shadow">¡ATENCIÓN!</h3>
+            <h3 id="modal-title" class="text-red-600 text-lg mb-4 mario-text-shadow">¡ATENCIÓN!</h3>
             <p id="modal-message" class="text-black text-xs md:text-sm leading-relaxed mb-6">Mensaje de alerta.</p>
             <button onclick="closeModal()" class="mario-btn text-xs px-6 py-2">OK</button>
         </div>
@@ -185,11 +184,11 @@
         <h1 class="text-2xl md:text-4xl text-yellow-300 mario-text-shadow mb-2 leading-tight">
             SUPER SLE BROS
         </h1>
-        <p class="text-xs md:text-sm mb-6 md:mb-8 text-yellow-200 mario-text-shadow tracking-widest">EDICIÓN FILOSOFÍA CORPORATIVA</p>
+        <p class="text-xs md:text-sm mb-6 md:mb-8 text-yellow-200 mario-text-shadow tracking-widest uppercase">Muestra tu dominio sobre la filosofía empresarial de SLE</p>
         
         <div class="mario-box p-6 md:p-10 flex flex-col items-center max-w-lg w-full">
-            <p class="text-black mb-6 text-[10px] md:text-xs leading-relaxed text-center">
-                Muestra tu dominio sobre la filosofía empresarial de SLE
+            <p class="text-black mb-6 text-[10px] md:text-xs leading-relaxed text-center font-bold">
+                Misión, Visión, Valores y Sistema de Gestión Integral de Soporte Logístico Express.
             </p>
             <input type="text" id="player-name" placeholder="INGRESA TU NOMBRE COMPLETO" class="mario-input mb-6 text-xs md:text-sm placeholder-gray-500 uppercase" maxlength="40">
             <button onclick="startGame()" class="mario-btn text-xs md:text-sm w-full">¡INICIAR DESAFÍO!</button>
@@ -219,7 +218,7 @@
         </div>
     </div>
 
-    <!-- PANTALLA DE FINALIZACIÓN Y RESULTADOS -->
+    <!-- PANTALLA DE RESULTADOS -->
     <div id="end-screen" class="hidden flex-col items-center justify-center flex-grow text-center z-20 relative mt-4 md:mt-8">
         <h1 id="end-title" class="text-2xl md:text-4xl text-yellow-300 mario-text-shadow mb-6">
             ¡NIVEL COMPLETADO!
@@ -236,16 +235,10 @@
                 <p id="summary-open-answer" class="text-[10px] italic leading-relaxed break-words"></p>
             </div>
 
-            <!-- Botones de Acción -->
             <div class="flex flex-col sm:flex-row gap-4 w-full">
-                <button id="btn-reporte" onclick="handleReportActions()" class="mario-btn text-xs bg-yellow-500 hover:bg-yellow-400 flex-1 transition-all duration-200">
-                    DESCARGAR Y ENVIAR REPORTE
-                </button>
+                <button id="btn-submit-report" onclick="triggerReportPipeline()" class="mario-btn text-xs bg-yellow-500 hover:bg-yellow-400 flex-1">DESCARGAR Y ENVIAR REPORTE</button>
                 <button onclick="resetGame()" class="mario-btn text-xs flex-1" style="background-color: #00a800;">VOLVER A JUGAR</button>
             </div>
-            
-            <!-- Status de envío por correo -->
-            <p id="mail-status-text" class="text-black mt-4 text-[9px] uppercase hidden"></p>
         </div>
     </div>
 
@@ -253,7 +246,7 @@
     <div class="ground"></div>
 
     <script>
-        // URL de Google Apps Script vinculada para el envío automatizado de correos
+        // --- CONFIGURACIÓN DE AUTOMATIZACIÓN (WEBHOOK) ---
         const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzTSszG4GHuKSCeRpNBy6sJDLuXebqAKTkMjpS8JAvup-52SL3z3qy8z3f_qrrIGWQ/exec";
 
         // --- BASE DE DATOS DE PREGUNTAS (FILOSOFÍA SLE) ---
@@ -328,7 +321,14 @@
         let isAnswering = false;
 
         // --- MANEJO DE MODALES ---
-        function showModal(message) {
+        function showModal(title, message, isSuccess = false) {
+            const titleEl = document.getElementById('modal-title');
+            titleEl.innerText = title;
+            if (isSuccess) {
+                titleEl.className = "text-green-600 text-lg mb-4 mario-text-shadow";
+            } else {
+                titleEl.className = "text-red-600 text-lg mb-4 mario-text-shadow";
+            }
             document.getElementById('modal-message').innerText = message;
             document.getElementById('mario-modal').classList.remove('hidden');
         }
@@ -341,7 +341,7 @@
         function startGame() {
             const nameInput = document.getElementById('player-name').value.trim();
             if (nameInput === "") {
-                showModal("¡POR FAVOR, INGRESA TU NOMBRE COMPLETO DE COLABORADOR!");
+                showModal("¡ATENCIÓN!", "¡POR FAVOR, INGRESA TU NOMBRE COMPLETO DE COLABORADOR!");
                 return;
             }
 
@@ -353,14 +353,14 @@
             score = 0;
             openAnswer = "";
             document.getElementById('open-question-input').value = "";
-            updateScoreDisplay();
+            
+            // Restablecer botón de reporte a su estado original
+            const btnSubmit = document.getElementById('btn-submit-report');
+            btnSubmit.innerText = "DESCARGAR Y ENVIAR REPORTE";
+            btnSubmit.disabled = false;
+            btnSubmit.className = "mario-btn text-xs bg-yellow-500 hover:bg-yellow-400 flex-1";
 
-            // Resetear botón de reportes
-            const btn = document.getElementById('btn-reporte');
-            btn.innerText = "DESCARGAR Y ENVIAR REPORTE";
-            btn.style.backgroundColor = "";
-            btn.disabled = false;
-            document.getElementById('mail-status-text').classList.add('hidden');
+            updateScoreDisplay();
 
             // Intercambiar pantallas
             document.getElementById('start-screen').classList.add('hidden');
@@ -389,7 +389,7 @@
                 openContainer.classList.remove('hidden');
                 openContainer.classList.add('flex');
                 
-                // Detener temporizador para pregunta abierta (estilo "Tiempo Infinito")
+                // Detener temporizador para pregunta abierta (estilo "Tiempo Infinito" de modo seguro)
                 clearInterval(timerInterval);
                 document.getElementById('hud-timer').innerText = "INF";
                 document.getElementById('hud-timer').className = "text-green-400";
@@ -471,7 +471,7 @@
         function submitOpenAnswer() {
             const answerText = document.getElementById('open-question-input').value.trim();
             if (answerText === "") {
-                showModal("¡POR FAVOR, CUÉNTASE AL MENOS UNA SITUACIÓN DIARIA! TU RESPUESTA ES ESENCIAL PARA EL REPORTE.");
+                showModal("¡REQUISITO!", "¡POR FAVOR, CUÉNTANOS AL MENOS UNA SITUACIÓN DIARIA! TU RESPUESTA ES ESENCIAL PARA EL REPORTE.");
                 return;
             }
             openAnswer = answerText;
@@ -493,46 +493,59 @@
             }
         }
 
-        function showEndScreen() {
-            document.getElementById('hud').classList.add('hidden');
-            document.getElementById('game-screen').classList.add('hidden');
-            
-            document.getElementById('end-screen').classList.remove('hidden');
-            document.getElementById('end-screen').classList.add('flex');
+        // --- CONVERSIÓN, DESCARGA Y ENVÍO AUTOMÁTICO ---
+        function triggerReportPipeline() {
+            const btnSubmit = document.getElementById('btn-submit-report');
+            btnSubmit.innerText = "ENVIANDO...";
+            btnSubmit.disabled = true;
+            btnSubmit.className = "mario-btn text-xs bg-gray-500 cursor-not-allowed flex-1";
 
-            document.getElementById('final-name').innerText = playerName;
-            document.getElementById('final-score').innerText = score;
-            document.getElementById('summary-open-answer').innerText = `"${openAnswer}"`;
+            // 1. Generar y descargar el PDF localmente
+            const doc = generateAndDownloadPDF();
 
-            const messageEl = document.getElementById('final-message');
-            const titleEl = document.getElementById('end-title');
+            // 2. Convertir el PDF a Base64 de forma asíncrona segura
+            try {
+                const pdfBase64 = doc.output('datauristring').split(',')[1];
+                
+                // 3. Mandar el POST a Google Apps Script evitando la pre-verificación CORS (no-cors)
+                fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // MODO CRÍTICO: Envía la información sin pre-verificación OPTIONS
+                    headers: {
+                        'Content-Type': 'text/plain' // Encabezado simple que salta CORS
+                    },
+                    body: JSON.stringify({
+                        pdf: pdfBase64,
+                        playerName: playerName,
+                        score: score,
+                        openAnswer: openAnswer
+                    })
+                })
+                .then(() => {
+                    // Dado que usamos no-cors, se ejecutará el callback de éxito de forma virtual
+                    btnSubmit.innerText = "¡REPORTE ENVIADO!";
+                    btnSubmit.className = "mario-btn text-xs bg-green-600 flex-1";
+                    showModal("¡ÉXITO!", `¡Reporte descargado y enviado exitosamente a danielamaravillas@slexpress.com.mx y alanarriaga@slexpress.com.mx!`, true);
+                })
+                .catch((error) => {
+                    console.error("Error al transmitir reporte:", error);
+                    btnSubmit.innerText = "REINTENTAR ENVÍO";
+                    btnSubmit.disabled = false;
+                    btnSubmit.className = "mario-btn text-xs bg-red-600 hover:bg-red-500 flex-1";
+                    showModal("¡ATENCIÓN!", "El reporte se descargó pero hubo un problema de conexión al enviarlo. Por favor, reintenta el envío.");
+                });
 
-            if (score === 6) {
-                titleEl.innerText = "¡PERFECT SCORE!";
-                titleEl.className = "text-2xl md:text-3xl text-green-400 mario-text-shadow mb-6";
-                messageEl.innerText = "¡Excelente nivel! Demuestras una alineación completa y perfecta con la cultura operativa y la gestión de riesgos de SLE. ¡Sigue liderando con el ejemplo!";
-            } else if (score >= 4) {
-                titleEl.innerText = "¡NIVEL COMPLETADO!";
-                titleEl.className = "text-2xl md:text-3xl text-yellow-300 mario-text-shadow mb-6";
-                messageEl.innerText = "¡Buen trabajo! Tienes bases muy sólidas sobre el SGI de SLE. Te invitamos a repasar aquellos puntos específicos en los que fallaste para asegurar el 100%.";
-            } else {
-                titleEl.innerText = "GAME OVER";
-                titleEl.className = "text-2xl md:text-3xl text-red-500 mario-text-shadow mb-6";
-                messageEl.innerText = "Es crucial que repases la filosofía corporativa y los objetivos de SLE para asegurar la correcta toma de decisiones y la excelencia operativa.";
+            } catch (err) {
+                console.error("Fallo general en la conversión:", err);
+                btnSubmit.innerText = "DESCARGAR REPORTE";
+                btnSubmit.disabled = false;
+                btnSubmit.className = "mario-btn text-xs bg-yellow-500 flex-1";
+                showModal("¡ERROR!", "Ocurrió un error al procesar el reporte para el correo, pero el PDF debe haberse descargado en tu dispositivo.");
             }
         }
 
-        function resetGame() {
-            document.getElementById('end-screen').classList.add('hidden');
-            document.getElementById('end-screen').classList.remove('flex');
-            document.getElementById('start-screen').classList.remove('hidden');
-            document.getElementById('start-screen').classList.add('flex');
-            document.getElementById('player-name').value = '';
-        }
-
-
-        // --- CONSTRUCTOR DE PDF Y RETORNO DE BASE64 ---
-        function buildPDFDocument() {
+        // --- CONSTRUCTOR OFICIAL DEL PDF (SGI) ---
+        function generateAndDownloadPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
@@ -544,21 +557,21 @@
             doc.setFillColor(15, 34, 64); // Azul Corporativo Profundo
             doc.rect(0, 0, 210, 42, 'F');
             
-            doc.setFillColor(248, 152, 40); // Línea naranja acento de SLE
+            doc.setFillColor(248, 152, 40); // Línea naranja acento de SLE / Mario
             doc.rect(0, 42, 210, 3, 'F');
 
             // Texto Cabecera
             doc.setTextColor(255, 255, 255);
             doc.setFont("helvetica", "bold");
             doc.setFontSize(20);
-            doc.text("SOPORTE LOGÍSTICO EXPRESS S.A. DE C.V.", 105, 18, { align: "center" });
+            doc.text("SOPORTE LOGÍSTICO EXPRESS S.A. DE C.V.", 105, 18, null, null, "center");
             doc.setFontSize(12);
             doc.setFont("helvetica", "normal");
-            doc.text("Sistema de Gestión Integral (SGI) - Evaluación de Filosofía", 105, 28, { align: "center" });
+            doc.text("Sistema de Gestión Integral (SGI) - Evaluación de Filosofía", 105, 28, null, null, "center");
             doc.setFontSize(9);
-            doc.text("Misión, Visión, Valores y Compromisos de Calidad y Seguridad", 105, 35, { align: "center" });
+            doc.text("Misión, Visión, Valores y Compromisos de Calidad y Seguridad", 105, 35, null, null, "center");
 
-            // Informacion General
+            // Información General
             doc.setTextColor(0, 0, 0);
             doc.setFontSize(11);
             doc.setFont("helvetica", "bold");
@@ -639,86 +652,26 @@
             doc.setTextColor(0, 0, 0);
             doc.setFont("helvetica", "bold");
             doc.setFontSize(10);
-            doc.text("REVISIÓN SGI Y CAPITAL HUMANO", 105, 245, { align: "center" });
+            doc.text("REVISIÓN SGI Y CAPITAL HUMANO", 105, 245, null, null, "center");
             
             // Línea de firma
             doc.setDrawColor(100, 100, 100);
             doc.line(65, 260, 145, 260);
             doc.setFont("helvetica", "normal");
             doc.setFontSize(8);
-            doc.text("Firma y Sello del Evaluador", 105, 265, { align: "center" });
+            doc.text("Firma y Sello del Evaluador", 105, 265, null, null, "center");
 
             // Pie de página oficial
             doc.setFontSize(7.5);
             doc.setTextColor(120, 120, 120);
-            doc.text("Soporte Logístico Express S.A. de C.V. - Documento Confidencial del Sistema de Gestión Integral.", 105, 282, { align: "center" });
-            doc.text("Generado electrónicamente por la plataforma de capacitación gamificada SLE Bros.", 105, 287, { align: "center" });
+            doc.text("Soporte Logístico Express S.A. de C.V. - Documento Confidencial del Sistema de Gestión Integral.", 105, 282, null, null, "center");
+            doc.text("Generado electrónicamente por la plataforma de capacitación gamificada SLE Bros.", 105, 287, null, null, "center");
 
-            return doc;
-        }
-
-
-        // --- MANEJADOR DE LAS DOS ACCIONES: DESCARGA LOCAL Y ENVÍO AUTOMÁTICO ---
-        function handleReportActions() {
-            const btnReporte = document.getElementById('btn-reporte');
-            const statusText = document.getElementById('mail-status-text');
-            
-            // 1. Generar y Descargar el PDF localmente para el colaborador
-            const doc = buildPDFDocument();
+            // Guardar archivo localmente
             const safeName = playerName.replace(/\s+/g, '_');
             doc.save(`SGI_SLE_Evaluacion_${safeName}.pdf`);
 
-            // Si no se ha configurado la URL real del Webhook, avisamos
-            if (WEBHOOK_URL.includes("EXAMPLE")) {
-                statusText.innerText = "⚠️ REPORTE DESCARGADO. (CONFIGURA LA URL DE WEBHOOK PARA EL ENVÍO AUTOMÁTICO)";
-                statusText.className = "text-red-700 mt-4 text-[10px] font-bold";
-                statusText.classList.remove('hidden');
-                return;
-            }
-
-            // Cambiar UI a estado "Enviando"
-            btnReporte.innerText = "ENVIANDO CORREO...";
-            btnReporte.disabled = true;
-            btnReporte.style.backgroundColor = "#7e7e7e";
-
-            statusText.innerText = "⚡ TRANSMITIENDO REPORTE A SGI...";
-            statusText.className = "text-blue-900 mt-4 text-[10px] animate-pulse font-bold";
-            statusText.classList.remove('hidden');
-
-            // Convertir PDF a string Base64 para adjuntar
-            const pdfBase64 = doc.output('datauristring').split(',')[1];
-
-            // 2. Enviar el correo electrónico mediante POST seguro
-            fetch(WEBHOOK_URL, {
-                method: "POST",
-                mode: "no-cors", // Requerido para evitar problemas CORS con Google Apps Script redirects
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    playerName: playerName,
-                    score: score,
-                    openAnswer: openAnswer,
-                    pdf: pdfBase64
-                })
-            })
-            .then(() => {
-                // Como usamos "no-cors", el navegador asume éxito si la transmisión de red fue exitosa
-                btnReporte.innerText = "¡ENVIADO CON ÉXITO!";
-                btnReporte.style.backgroundColor = "#00a800";
-                
-                statusText.innerText = "✨ ¡REPORTE ENVIADO DE FORMA AUTOMÁTICA A DANIELA Y ALAN! ✨";
-                statusText.className = "text-green-800 mt-4 text-[10px] font-bold";
-            })
-            .catch(error => {
-                console.error("Error al enviar el reporte por correo:", error);
-                btnReporte.innerText = "FALLÓ ENVÍO";
-                btnReporte.style.backgroundColor = "#e52521";
-                btnReporte.disabled = false;
-                
-                statusText.innerText = "❌ ERROR AL ENVIAR CORREO AUTOMÁTICO. INTENTE DE NUEVO.";
-                statusText.className = "text-red-800 mt-4 text-[10px] font-bold";
-            });
+            return doc;
         }
     </script>
 </body>
