@@ -551,14 +551,14 @@
             doc.setTextColor(255, 255, 255);
             doc.setFont("helvetica", "bold");
             doc.setFontSize(20);
-            doc.text("SOPORTE LOGÍSTICO EXPRESS S.A. DE C.V.", 105, 18, null, null, "center");
+            doc.text("SOPORTE LOGÍSTICO EXPRESS S.A. DE C.V.", 105, 18, { align: "center" });
             doc.setFontSize(12);
             doc.setFont("helvetica", "normal");
-            doc.text("Sistema de Gestión Integral (SGI) - Evaluación de Filosofía", 105, 28, null, null, "center");
+            doc.text("Sistema de Gestión Integral (SGI) - Evaluación de Filosofía", 105, 28, { align: "center" });
             doc.setFontSize(9);
-            doc.text("Misión, Visión, Valores y Compromisos de Calidad y Seguridad", 105, 35, null, null, "center");
+            doc.text("Misión, Visión, Valores y Compromisos de Calidad y Seguridad", 105, 35, { align: "center" });
 
-            // Información General
+            // Informacion General
             doc.setTextColor(0, 0, 0);
             doc.setFontSize(11);
             doc.setFont("helvetica", "bold");
@@ -586,7 +586,7 @@
             doc.setFont("helvetica", "bold");
             doc.setFontSize(11);
             doc.text("RESULTADOS DE OPCIÓN MÚLTIPLE (PREGUNTAS 1 - 6)", 20, 102);
-            doc.line(20, 105, 105);
+            doc.line(20, 105, 190, 105);
 
             doc.setFont("helvetica", "normal");
             doc.setFontSize(10);
@@ -639,20 +639,20 @@
             doc.setTextColor(0, 0, 0);
             doc.setFont("helvetica", "bold");
             doc.setFontSize(10);
-            doc.text("REVISIÓN SGI Y CAPITAL HUMANO", 105, 245, null, null, "center");
+            doc.text("REVISIÓN SGI Y CAPITAL HUMANO", 105, 245, { align: "center" });
             
             // Línea de firma
             doc.setDrawColor(100, 100, 100);
             doc.line(65, 260, 145, 260);
             doc.setFont("helvetica", "normal");
             doc.setFontSize(8);
-            doc.text("Firma y Sello del Evaluador", 105, 265, null, null, "center");
+            doc.text("Firma y Sello del Evaluador", 105, 265, { align: "center" });
 
             // Pie de página oficial
             doc.setFontSize(7.5);
             doc.setTextColor(120, 120, 120);
-            doc.text("Soporte Logístico Express S.A. de C.V. - Documento Confidencial del Sistema de Gestión Integral.", 105, 282, null, null, "center");
-            doc.text("Generado electrónicamente por la plataforma de capacitación gamificada SLE Bros.", 105, 287, null, null, "center");
+            doc.text("Soporte Logístico Express S.A. de C.V. - Documento Confidencial del Sistema de Gestión Integral.", 105, 282, { align: "center" });
+            doc.text("Generado electrónicamente por la plataforma de capacitación gamificada SLE Bros.", 105, 287, { align: "center" });
 
             return doc;
         }
