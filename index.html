@@ -12,6 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
+        /* Estilos personalizados inspirados en Mario Bros y adaptados a SLE */
         body {
             font-family: 'Press Start 2P', cursive;
             background-color: #5c94fc; /* Color del cielo de Mario */
@@ -184,11 +185,11 @@
         <h1 class="text-2xl md:text-4xl text-yellow-300 mario-text-shadow mb-2 leading-tight">
             SUPER SLE BROS
         </h1>
-        <p class="text-xs md:text-sm mb-6 md:mb-8 text-yellow-200 mario-text-shadow tracking-widest uppercase">Muestra tu dominio sobre la filosofía empresarial de SLE</p>
+        <p class="text-[10px] md:text-xs mb-6 md:mb-8 text-yellow-200 mario-text-shadow tracking-widest uppercase">Muestra tu dominio sobre la filosofía empresarial de SLE</p>
         
         <div class="mario-box p-6 md:p-10 flex flex-col items-center max-w-lg w-full">
             <p class="text-black mb-6 text-[10px] md:text-xs leading-relaxed text-center font-bold">
-                Misión, Visión, Valores y Sistema de Gestión Integral de Soporte Logístico Express.
+                ¡Ingresa tu nombre completo para iniciar el desafío!
             </p>
             <input type="text" id="player-name" placeholder="INGRESA TU NOMBRE COMPLETO" class="mario-input mb-6 text-xs md:text-sm placeholder-gray-500 uppercase" maxlength="40">
             <button onclick="startGame()" class="mario-btn text-xs md:text-sm w-full">¡INICIAR DESAFÍO!</button>
@@ -491,6 +492,43 @@
             } else {
                 showEndScreen();
             }
+        }
+
+        function showEndScreen() {
+            document.getElementById('hud').classList.add('hidden');
+            document.getElementById('game-screen').classList.add('hidden');
+            
+            document.getElementById('end-screen').classList.remove('hidden');
+            document.getElementById('end-screen').classList.add('flex');
+
+            document.getElementById('final-name').innerText = playerName;
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('summary-open-answer').innerText = `"${openAnswer}"`;
+
+            const messageEl = document.getElementById('final-message');
+            const titleEl = document.getElementById('end-title');
+
+            if (score === 6) {
+                titleEl.innerText = "¡PERFECT SCORE!";
+                titleEl.className = "text-2xl md:text-3xl text-green-400 mario-text-shadow mb-6";
+                messageEl.innerText = "¡Excelente nivel! Demuestras una alineación completa y perfecta con la cultura operativa y la gestión de riesgos de SLE. ¡Sigue liderando con el ejemplo!";
+            } else if (score >= 4) {
+                titleEl.innerText = "¡NIVEL COMPLETADO!";
+                titleEl.className = "text-2xl md:text-3xl text-yellow-300 mario-text-shadow mb-6";
+                messageEl.innerText = "¡Buen trabajo! Tienes bases muy sólidas sobre el SGI de SLE. Te invitamos a repasar aquellos puntos específicos en los que fallaste para asegurar el 100%.";
+            } else {
+                titleEl.innerText = "GAME OVER";
+                titleEl.className = "text-2xl md:text-3xl text-red-500 mario-text-shadow mb-6";
+                messageEl.innerText = "Es crucial que repases la filosofía corporativa y los objetivos de SLE para asegurar la correcta toma de decisiones y la excelencia operativa.";
+            }
+        }
+
+        function resetGame() {
+            document.getElementById('end-screen').classList.add('hidden');
+            document.getElementById('end-screen').classList.remove('flex');
+            document.getElementById('start-screen').classList.remove('hidden');
+            document.getElementById('start-screen').classList.add('flex');
+            document.getElementById('player-name').value = '';
         }
 
         // --- CONVERSIÓN, DESCARGA Y ENVÍO AUTOMÁTICO ---
