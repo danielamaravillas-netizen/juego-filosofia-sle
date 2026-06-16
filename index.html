@@ -582,6 +582,7 @@
             }
         }
 
+        // --- STREAMING_CHUNK: Diseñando el generador de PDF corporativo... ---
         // --- CONSTRUCTOR OFICIAL DEL PDF (SGI) ---
         function generateAndDownloadPDF() {
             const { jsPDF } = window.jspdf;
@@ -686,11 +687,11 @@
             const splitResponse = doc.splitTextToSize(openAnswer, 162);
             doc.text(splitResponse, 24, 167);
 
-            // Firma y Cierre Técnico
+            // Firma y Cierre Técnico (Sustituyendo Capital Humano por Proyectos y Calidad)
             doc.setTextColor(0, 0, 0);
             doc.setFont("helvetica", "bold");
             doc.setFontSize(10);
-            doc.text("REVISIÓN SGI Y CAPITAL HUMANO", 105, 245, null, null, "center");
+            doc.text("REVISIÓN DE PROYECTOS Y CALIDAD", 105, 245, null, null, "center");
             
             // Línea de firma
             doc.setDrawColor(100, 100, 100);
